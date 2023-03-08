@@ -5,6 +5,7 @@ import os
 import requests
 import zipfile
 
+from api_v1.baseapi import BaseApi
 from gallery_authentication.gallery_authentication_method import GalleryAuthenticationMethod
 from request_methods.methods import Method
 
@@ -29,15 +30,14 @@ def _build_questions_list(questions={}) -> object:
     return questions_body
 
 
-class Workflows:
+class Workflows(BaseApi):
     def __init__(self, base_url: str, authenticator: GalleryAuthenticationMethod):
         """
         The Workflows class represents the workflow endpoint and all the methods associated with it
         :param base_url: The base URL of your Gallery API as defined in your server settings
         :param authenticator: A GalleryAuthenticationMethod object representing the method for authentication to your Gallery instance (e.g. Oauth1 or Oauth2)
         """
-        self._authenticator = authenticator
-        self._base_url = base_url
+        super().__init__(base_url=base_url, authenticator=authenticator)
 
     def get_subscription(self, headers={}, params={}) -> requests.Response:
         """
@@ -89,28 +89,33 @@ class Workflows:
         response = self._make_request(Method.GET.value, endpoint=endpoint, headers=headers, params=params)
         return response
 
-    def get_package(self, app_id: str, save_path: str) -> str:
+    def get_package(self, app_id) -> requests.Response:
         """
         Returns the app that was requested
-        :param app_id: The id for the workflow to get jobs for.
-        :param save_path: A path representing where the package should be saved
+        :param app_id: The id of the package to retrieve.
         :return: Returns True when contents are saved
         """
         endpoint = f'/v1/workflows/{app_id}/package'
 
+        response = self._make_request(Method.GET.value, endpoint=endpoint)
+        return response
+
+    def get_package_and_save(self, app_id: str, save_path: str) -> bool:
+        """
+        A helper method that wraps around the get_package call.  This method will retrieve
+        a package from the API and save it to a designated path
+        :param app_id: The id of the package to retrieve.
+        :param save_path: A path representing where the package should be saved
+        :return: Returns True when contents are saved
+        """
+
         if not os.path.isdir(save_path):
             raise NotADirectoryError
 
-        response = self._make_request(Method.GET.value, endpoint=endpoint)
+        response = self.get_package(app_id=app_id)
         zipped_package = zipfile.ZipFile(io.BytesIO(response.content))
         zipped_package.extractall(save_path)
 
         return True
 
-    def _make_request(self, method: Method, endpoint, headers={}, params={}, body=None) -> requests.Response:
-        url = f'{self._base_url}/{endpoint}'
-        api_request = requests.Request(method=method, url=url, headers=headers, params=params, data=body)
-        authed_api_request = self._authenticator.authenticate(api_request)
-        prepared_request = authed_api_request.prepare()
-        response = requests.Session().send(prepared_request)
-        return response
+

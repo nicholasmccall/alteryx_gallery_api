@@ -1,18 +1,18 @@
 import requests
 
+from api_v1.baseapi import BaseApi
 from gallery_authentication import GalleryAuthenticationMethod
 from request_methods.methods import Method
 
 
-class Jobs:
+class Jobs(BaseApi):
     def __init__(self, base_url: str, authenticator: GalleryAuthenticationMethod):
         """
         The Jobs class represents the jobs endpoint and all the methods associated with it
         :param base_url: The base URL of your Gallery API as defined in your server settings
         :param authenticator: A GalleryAuthenticationMethod object representing the method for authentication to your Gallery instance (e.g. Oauth1 or Oauth2)
         """
-        self._authenticator = authenticator
-        self._base_url = base_url
+        super().__init__(base_url=base_url, authenticator=authenticator)
 
     def get_job(self, job_id: str, headers={}, params={}) -> requests.Response:
         """
@@ -40,10 +40,3 @@ class Jobs:
         response = self._make_request(Method.GET.value, endpoint=endpoint, headers=headers, params=params)
         return response
 
-    def _make_request(self, method: Method, endpoint, headers={}, params={}, body=None) -> requests.Response:
-        url = f'{self._base_url}/{endpoint}'
-        api_request = requests.Request(method=method, url=url, headers=headers, params=params, data=body)
-        authed_api_request = self._authenticator.authenticate(api_request)
-        prepared_request = authed_api_request.prepare()
-        response = requests.Session().send(prepared_request)
-        return response
