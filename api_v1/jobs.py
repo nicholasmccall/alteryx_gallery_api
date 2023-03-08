@@ -14,7 +14,7 @@ class Jobs(BaseApi):
         """
         super().__init__(base_url=base_url, authenticator=authenticator)
 
-    def get_job(self, job_id: str, headers={}, params={}) -> requests.Response:
+    def get_job(self, job_id: str, headers=None, params=None) -> requests.Response:
         """
         Retrieves the job and its current state
         :param job_id: The id representing the job
@@ -26,7 +26,7 @@ class Jobs(BaseApi):
         response = self._make_request(Method.GET.value, endpoint=endpoint, headers=headers, params=params)
         return response
 
-    def get_job_output(self, job_id: str, output_id: str, headers={}, params={}) -> requests.Response:
+    def get_job_output(self, job_id: str, output_id: str, headers=None, params=None) -> requests.Response:
         """
         Get output for a given job.  It is important to pass the 'format' parameter as a param.  The consumer
         of the api is responsible for writing the raw content to a file.

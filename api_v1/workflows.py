@@ -39,7 +39,7 @@ class Workflows(BaseApi):
         """
         super().__init__(base_url=base_url, authenticator=authenticator)
 
-    def get_subscription(self, headers={}, params={}) -> requests.Response:
+    def get_subscription(self, headers=None, params=None) -> requests.Response:
         """
         Finds workflows in a subscription
         :param headers: An optional parameter denoting any headers you would like to pass to the request
@@ -50,7 +50,7 @@ class Workflows(BaseApi):
         response = self._make_request(Method.GET.value, endpoint=endpoint, headers=headers, params=params)
         return response
 
-    def post_jobs(self, app_id: str, questions={}, headers={}) -> requests.Response:
+    def post_jobs(self, app_id: str, questions={}, headers=None) -> requests.Response:
         """
         Queues a job execution for the specified workflow with the supplied answers
         :param app_id: The id for the workflow to execute.
@@ -65,7 +65,7 @@ class Workflows(BaseApi):
         response = self._make_request(Method.POST.value, endpoint=endpoint, headers=headers, body=questions)
         return response
 
-    def get_jobs(self, app_id: str, headers={}, params={}) -> requests.Response:
+    def get_jobs(self, app_id: str, headers=None, params=None) -> requests.Response:
         """
         Returns the jobs for the given Alteryx Analytics App
         :param app_id: The id for the workflow to get jobs for.
@@ -77,7 +77,7 @@ class Workflows(BaseApi):
         response = self._make_request(Method.GET.value, endpoint=endpoint, headers=headers, params=params)
         return response
 
-    def get_questions(self, app_id: str, headers={}, params={}) -> requests.Response:
+    def get_questions(self, app_id: str, headers=None, params=None) -> requests.Response:
         """
         Get the questions for the given Alteryx Analytics App
         :param app_id: The id for the workflow to get questions for.
